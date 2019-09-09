@@ -8,68 +8,73 @@ import matplotlib.pyplot as plt
 # d2 = f[x0, x1, x2] = (f[x1,x2] - f[x0,x1]) / x2 - x0
 
 # Definição dos parâmetros
-x = np.array([-1, 1, 2, 3, 5])
-f = np.array([-4, 0, 3, 5, 3])
-# Vetor auxiliar f1
-f1 = np.array([-4, 0, 3, 5, 3])
+x = np.array([1991.0, 1996, 2000])
+f = np.array([497600.0, 549363.0, 597934.0])
+
 # Array com primeiro elemento d0 sendo x0
-ordens = np.array([f1[0]])
+d = np.array([f[0]])
+
+print('\n\n', '#'*5, 'Eixo das abscissas', '#'*5, end='\n\n     [ ')
+for i in range(len(x)):
+    print(f'{x[i]:.0f}', end=' ')
+print(']\n\n', '#' * 29, '\n')
+
+print('#'*5, 'Eixo das ordenadas', '#'*5, end='\n\n   [ ')
+for i in range(len(x)):
+    print(f'{f[i]:.0f}', end=' ')
+print(']\n\n', '#' * 29, '\n')
 
 
 class Interpolacao(object):
 
-    def __init__(self, x, f, ordensAux):
-        self.x = x
-        self.f = f
-        self.ordensAux = ordensAux
-
+    def __init__(self, dAux):
+        # O parâmetro dAux apenas recebe o array que está com o d0
+        self.dAux = dAux
         # N de vezes que o método calcularDx procura cada os valores de cada ordem
         self.nDeIteracoes = 0
 
     def calcularDx(self):
-        # Pega as variaveis definidas fora do escopo do objeto
-        global ordens
+        # Pega as variáveis definidas fora do escopo da classe
+        global d
         global f
         # Array Auxiliar para o F[x]
         aux = np.array([])
-        # Laco de repeticao responsavel por fazer os calculos
+        # Laço de repetição responsável por fazer os cálculos
         for l in range(0, len(f) - 1):
             f[l] = (f[l + 1] - f[l]) / (x[l + (self.nDeIteracoes + 1)] - x[l])
             aux = np.append(aux, f[l])
 
-        self.ordensAux = np.append(self.ordensAux, aux[0])
+        self.dAux = np.append(self.dAux, aux[0])
         # Substitui o coeficientes da ordem pelos atuais
-        ordens = self.ordensAux
+        d = self.dAux
         # Atribui os novos y correspondentes à sua ordem
         f = aux
         self.nDeIteracoes += 1
         self.termina()
-
-    def iniciarInterpolacao(self):
-        self.calcularDx()
 
     def termina(self):
         if self.nDeIteracoes < len(x) - 1:
             self.calcularDx()
 
     def calcularX(self, z):
-        r = self.ordensAux[len(self.ordensAux) - 1]
-        for i in range(len(self.ordensAux) - 2, -1, -1):
-            r = r * (z - x[i]) + self.ordensAux[i]
+        r = self.dAux[len(self.dAux) - 1]
+        for i in range(len(self.dAux) - 2, -1, -1):
+            r = r * (z - x[i]) + self.dAux[i]
         return r
 
 
 # x = np.array([-1, 0, 2])
 # f = np.array([4, 1, -1])
 
-var = Interpolacao(x, f, ordens)
-var.iniciarInterpolacao()
-print('#' * 20)
-print(f)
-print('[', end='')
-for l in range(0, len(ordens)):
-    print(f'{ordens[l]:^8.4f}', end='')
-print(']')
-print("=#" * 20, '\n')
+var = Interpolacao(d)
+var.calcularDx()
 
-print(var.calcularX(0))
+print('#'*8, 'Coeficientes', '#'*8, end='\n\n')
+for i in range(len(d)):
+    print(f'    d{i} = {d[i]:.0f}')
+print('\n', '#' * 29, '\n')
+
+print('Equacao geral: ')
+print(f'Pn(x) = {d[0]:.0f} + {d[1]:.0f}*(X - {x[0]:.0f}) + {d[2]:.0f}*(X - {x[0]:.0f})*(X - {x[1]:.0f})')
+
+print('\nPn(1998) = ', f'{var.calcularX(1998):.0f}')
