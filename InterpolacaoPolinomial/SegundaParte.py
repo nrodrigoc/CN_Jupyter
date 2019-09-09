@@ -27,7 +27,9 @@ print(']\n\n', '#' * 29, '\n')
 
 class Interpolacao(object):
 
-    def __init__(self, dAux):
+    def __init__(self, x, f, dAux):
+        self.x = x
+        self.f = f
         # O parâmetro dAux apenas recebe o array que está com o d0
         self.dAux = dAux
         # N de vezes que o método calcularDx procura cada os valores de cada ordem
@@ -57,16 +59,19 @@ class Interpolacao(object):
             self.calcularDx()
 
     def calcularX(self, z):
-        r = self.dAux[len(self.dAux) - 1]
-        for i in range(len(self.dAux) - 2, -1, -1):
-            r = r * (z - x[i]) + self.dAux[i]
-        return r
+        if (z > x[0]) and (z < x[len(x) - 1]):
+            r = self.dAux[len(self.dAux) - 1]
+            for i in range(len(self.dAux) - 2, -1, -1):
+                r = r * (z - x[i]) + self.dAux[i]
+            print(f'\nPn({z}) =', f'{r:.0f}')
+        else:
+            print('O valor nao esta contido no intervalo')
 
 
 # x = np.array([-1, 0, 2])
 # f = np.array([4, 1, -1])
 
-var = Interpolacao(d)
+var = Interpolacao(x, f, d)
 var.calcularDx()
 
 print('#'*8, 'Coeficientes', '#'*8, end='\n\n')
@@ -75,6 +80,6 @@ for i in range(len(d)):
 print('\n', '#' * 29, '\n')
 
 print('Equacao geral: ')
-print(f'Pn(x) = {d[0]:.0f} + {d[1]:.0f}*(X - {x[0]:.0f}) + {d[2]:.0f}*(X - {x[0]:.0f})*(X - {x[1]:.0f})')
+print(f'Pn(x) = {d[0]:.0f} + {d[1]:.0f}*(X - {x[0]:.0f}) + {d[2]:.0f}*(X - {x[0]:.0f})*(X - {x[1]:.0f})\n')
 
-print('\nPn(1998) = ', f'{var.calcularX(1998):.0f}')
+var.calcularX(2005)
